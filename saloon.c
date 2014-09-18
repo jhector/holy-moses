@@ -52,6 +52,45 @@ void menu()
     _write("(3) quit\n\n");
 }
 
+int32_t check_referal(const char *code)
+{
+    char ref[32] = {0};
+
+    int32_t fd = open("referals", O_RDONLY);
+    if (fd < 0)
+        return 0;
+
+    if (read(fd, ref, sizeof(ref)-1) <= 0)
+        goto fail_close;
+
+    if (!strcmp(code, ref)) {
+        close(fd);
+        return 1;
+    } else {
+        log_file("[!] invalid referal code\n");
+    }
+
+fail_close:
+    close(fd);
+    return 0;
+}
+
+void enter_referal()
+{
+    char code[32] = {0};
+
+    _write("Code: ");
+
+    if (read(0, code, sizeof(code)-1) < 0)
+        die("reading referal code");
+
+    if (check_referal(code)) {
+        log_msg("Your code: %s, is valid\nPlease contact your referal\n", code);
+    } else {
+        log_msg("Invalid code: %s\n", code);
+    }
+}
+
 int32_t main()
 {
     char input[10];
@@ -71,6 +110,7 @@ int32_t main()
 
         switch (choice) {
         case 1:
+            enter_referal();
             break;
         case 2:
             break;
