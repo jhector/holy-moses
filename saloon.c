@@ -21,12 +21,10 @@ static int32_t log_fd = -1;
 struct request last_requests[20];
 uint32_t idx = 0;
 
+void store_last(const char *name, uint64_t age);
+
 void log_file(char *msg)
 {
-    if (log_fd < 0) {
-        log_fd = open("/tmp/saloon.log", O_WRONLY | O_APPEND | O_CREAT);
-    }
-
     if (log_fd < 0)
         return;
 
@@ -100,23 +98,23 @@ void enter_referal()
     }
 }
 
-void store_last(const char *name, uint64_t age)
-{
-    last_requests[idx % 20].name = name;
-    last_requests[idx % 20].age = age;
-    idx++;
-}
-
 int32_t check_request(const char *name, uint64_t age)
 {
     char msg[50] = {0};
 
-    snprintf(msg, 22 + strlen(name), "Blocked request from %s", name);
+    snprintf(msg, 21 + strlen(name), "Blocked request from %s", name);
 
     log_file(msg);
 
     store_last(name, age);
     return 0;
+}
+
+void store_last(const char *name, uint64_t age)
+{
+    last_requests[idx % 20].name = name;
+    last_requests[idx % 20].age = age;
+    idx++;
 }
 
 void request_invite()
@@ -146,6 +144,8 @@ int32_t main()
 {
     char input[10];
     uint32_t choice = 0;
+
+    log_fd = open("/tmp/saloon.log", O_WRONLY | O_APPEND | O_CREAT);
 
     menu();
 
