@@ -1,5 +1,5 @@
 SRCS=saloon.c
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -masm=intel
 ASLR=-pie -fPIE
 RELRO=-Wl,-z,relro,-z,now
 COOKIE=
