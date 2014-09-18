@@ -1,6 +1,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -133,7 +136,7 @@ void request_invite()
     __asm__("nop DWORD ptr [eax+eax*1+0x00000000]");
     __asm__("nop");
 
-    log_msg("Give us some information please:\n");
+    log_msg("Please provide some information\n");
 
     _write("Age: ");
     if (read(0, buf, sizeof(name)-1) < 0)
@@ -152,12 +155,10 @@ void request_invite()
     }
 }
 
-int32_t main()
+void handle_client()
 {
     char input[10];
     uint32_t choice = 0;
-
-    log_fd = open("/tmp/saloon.log", O_WRONLY | O_APPEND | O_CREAT);
 
     menu();
 
@@ -184,6 +185,73 @@ int32_t main()
     }
 
 leave:
+    return;
+}
+
+int32_t main(int32_t argc, char *argv[])
+{
+    int32_t client_sock = -1;
+    int32_t portno = 0;
+    int32_t sock = -1;
+
+    socklen_t cli_len;
+    struct sockaddr_in serv_addr, cli_addr;
+
+    if (argc < 2) {
+        log_msg("Usage: %s <port>\n", argv[0]);
+        return 1;
+    }
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        perror("[-] failed to create socket");
+        return 1;
+    }
+
+    bzero((void*)&serv_addr, sizeof(serv_addr));
+
+    portno = atoi(argv[1]);
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(portno);
+
+    if (bind(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("[-] failed to bind");
+        return 1;
+    }
+
+    if (listen(sock, 5) < 0) {
+        perror("[-] failed to listen");
+        return 1;
+    }
+
+    cli_len = sizeof(cli_addr);
+
+    while (1) {
+        client_sock = accept(sock, (struct sockaddr*)&cli_addr, &cli_len);
+
+        if (client_sock < 0) {
+            perror("[-] failed to accept");
+            continue;
+        }
+
+        if (!fork()) {
+            close(sock);
+            dup2(client_sock, 0);
+            dup2(client_sock, 1);
+            dup2(client_sock, 2);
+
+            close(client_sock);
+
+            handle_client();
+
+            exit(0);
+        }
+
+        close(client_sock);
+    }
+
     if (log_fd > 0)
         close(log_fd);
     return 0;
