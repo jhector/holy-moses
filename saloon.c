@@ -26,6 +26,15 @@ void _write(const char *out)
     write(1, out, strlen(out));
 }
 
+void menu()
+{
+    _write("Welcome to the Holy Moses invite system.\n\n");
+
+    _write("(1) enter referal\n");
+    _write("(2) request invite\n");
+    _write("(3) quit\n\n");
+}
+
 int32_t main()
 {
     return 0;
