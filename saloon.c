@@ -58,7 +58,6 @@ void menu()
 {
     _write("Welcome to the Holy Moses invite system.\n\n");
 
-    __asm("nop");
     _write("(1) enter referal\n");
     _write("(2) request invite\n");
     _write("(3) quit\n\n");
@@ -72,7 +71,6 @@ int32_t check_referal(const char *code)
     if (fd < 0)
         return 0;
 
-    __asm__("nop");
     if (read(fd, ref, 12) <= 0)
         goto fail_close;
 
@@ -83,7 +81,7 @@ int32_t check_referal(const char *code)
         log_file("[!] invalid referal code\n");
     }
 
-    __asm__("nop DWORD ptr [eax+eax*1+0x00000000]");
+    __asm__("nop DWORD ptr [eax+eax*1+0x00]");
 fail_close:
     close(fd);
     return 0;
@@ -110,11 +108,8 @@ int32_t check_request(const char *name, uint64_t age)
     char msg[50] = {0};
 
     snprintf(msg, 21 + strlen(name), "Blocked request from %s", name);
-
-    __asm__("nop DWORD ptr [eax+eax*1+0x00000000]");
     log_file(msg);
 
-    __asm__("nop");
     store_last(name, age);
     return 0;
 }
@@ -134,14 +129,11 @@ void request_invite()
     uint64_t age;
     char name[28];
 
-    __asm__("nop DWORD ptr [eax+eax*1+0x00000000]");
-    __asm__("nop");
-
-    log_msg("Please provide some information\n");
-
     _write("Age: ");
     if (read(0, buf, sizeof(name)-1) < 0)
         return;
+
+    log_msg("Full name please\n");
 
     age = strtoull(buf, NULL, 10);
 
