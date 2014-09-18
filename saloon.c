@@ -1,3 +1,6 @@
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -6,6 +9,20 @@
 #include <string.h>
 
 #define LOG_STREAM stdout
+
+static int32_t log_fd = -1;
+
+void log_file(char *msg)
+{
+    if (log_fd < 0) {
+        log_fd = open("/tmp/saloon.log", O_WRONLY | O_APPEND | O_CREAT);
+    }
+
+    if (log_fd < 0)
+        return;
+
+    write(log_fd, msg, strlen(msg));
+}
 
 void log_msg(char *fmt, ...)
 {
@@ -63,5 +80,7 @@ int32_t main()
     }
 
 leave:
+    if (log_fd > 0)
+        close(log_fd);
     return 0;
 }
