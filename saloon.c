@@ -40,6 +40,7 @@ void log_msg(char *fmt, ...)
     va_start(args, fmt);
 
     vfprintf(LOG_STREAM, fmt, args);
+    fflush(stdout);
 }
 
 void die(char *error)
