@@ -37,5 +37,31 @@ void menu()
 
 int32_t main()
 {
+    char input[10];
+    uint32_t choice = 0;
+
+    menu();
+
+    while (1) {
+        _write("Your choice: ");
+
+        bzero(input, sizeof(input));
+        if (read(0, input, sizeof(input)-1) <= 0)
+            break;
+
+        if (!sscanf(input, "%d", &choice))
+            continue;
+
+        switch (choice) {
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            goto leave;
+        }
+    }
+
+leave:
     return 0;
 }
