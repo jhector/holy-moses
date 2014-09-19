@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+
 
 #define REF_SIZE 64
 #define LOG_STREAM stdout
@@ -216,6 +218,11 @@ int32_t main(int32_t argc, char *argv[])
 
     if (listen(sock, 5) < 0) {
         perror("[-] failed to listen");
+        return 1;
+    }
+
+    if (signal(SIGCHLD, SIG_IGN) == SIG_ERR) {
+        perror("[-] failed to setup signal handler");
         return 1;
     }
 
