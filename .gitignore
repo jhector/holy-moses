@@ -1,3 +1,4 @@
+*.tar.gz
 peda-session-*
 .gdb_history
 saloon
