@@ -60,6 +60,7 @@ void menu()
 {
     _write("Welcome to the Holy Moses invite system.\n\n");
 
+    __asm__("nop");
     _write("(1) enter referal\n");
     _write("(2) request invite\n");
     _write("(3) quit\n\n");
@@ -83,7 +84,7 @@ int32_t check_referal(const char *code)
         log_file("[!] invalid referal code\n");
     }
 
-    __asm__("nop DWORD ptr [eax+eax*1+0x00]");
+    __asm__("nop");
 fail_close:
     close(fd);
     return 0;
@@ -116,15 +117,6 @@ int32_t check_request(const char *name, uint64_t age)
     return 0;
 }
 
-void store_last(const char *name, uint64_t age)
-{
-    last_requests[idx % 20].name = name;
-    last_requests[idx % 20].age = age;
-    idx++;
-
-    __asm__("nop DWORD ptr [eax+eax*1+0x00000000]");
-}
-
 void request_invite()
 {
     char buf[28];
@@ -135,19 +127,27 @@ void request_invite()
     if (read(0, buf, sizeof(name)-1) < 0)
         return;
 
-    log_msg("Full name please\n");
-
     age = strtoull(buf, NULL, 10);
 
     _write("Name: ");
     if (read(0, name, sizeof(name)-1) < 0)
         return;
 
+    __asm__("nop");
+    log_msg("Full name please\n");
+
     if (check_request(name, age)) {
         log_msg("Thank you %sYour invitation will be mailed to you.\n", name);
     } else {
         log_msg("We are sorry %sThere is no more room.\n", name);
     }
+}
+
+void store_last(const char *name, uint64_t age)
+{
+    last_requests[idx % 20].name = name;
+    last_requests[idx % 20].age = age;
+    idx++;
 }
 
 void handle_client()
